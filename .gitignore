@@ -1,0 +1,12 @@
+# Rust / Cargo build artifacts
+/target/
+
+# Files created by the Operating System
+.DS_Store
+
+# Editor / tooling
+.vscode/
+.idea/
+
+# Local env
+.env

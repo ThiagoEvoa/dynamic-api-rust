@@ -1,0 +1,28 @@
+services:
+  dynamic-api-rust:
+    container_name: dynamic-api-rust-app
+    build: .
+    restart: always
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+    networks:
+      - tunnel_net
+
+  tunnel:
+    container_name: cloudflare-tunnel
+    image: cloudflare/cloudflared:latest
+    restart: always
+    # We add --no-autoupdate for stability on Raspberry Pi (matches the
+    # dynamic_api_dart compose file).
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - tunnel_net
+    depends_on:
+      - dynamic-api-rust
+
+networks:
+  tunnel_net:
+    driver: bridge

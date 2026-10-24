@@ -1,0 +1,29 @@
+[package]
+name = "dynamic-api-rust"
+version = "1.0.0"
+edition = "2021"
+description = "Minimal dynamic JSON store API (Rust port of dynamic_api_dart) built with axum."
+license = "MIT"
+publish = false
+
+[lib]
+name = "dynamic_api"
+path = "src/lib.rs"
+
+[[bin]]
+name = "dynamic-api"
+path = "src/main.rs"
+
+[dependencies]
+axum = "0.8"
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "test-util"] }
+tower = { version = "0.5", features = ["util"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
