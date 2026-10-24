@@ -10,12 +10,12 @@ use serde_json::{Map, Value};
 
 /// Process-wide store holding the current JSON document.
 ///
-/// Constructed by [`AppState::new`], which seeds it with an empty object
-/// (`{}`), matching the Dart reference.
-#[derive(Clone, Default, Debug)]
+/// Constructed by [`AppState::new`] or [`AppState::default`], both of which seed
+/// it with an empty object (`{}`), matching the Dart reference.
+#[derive(Clone, Debug)]
 pub struct AppState {
-    /// The shared JSON document. Reads clone under a short read lock; writes
-    /// replace the whole document under a short write lock.
+    /// The shared JSON document. Reads clone and writes replace the whole
+    /// document while holding the mutex.
     store: Arc<Mutex<Value>>,
 }
 
@@ -29,9 +29,8 @@ impl AppState {
 
     /// Returns a clone of the currently stored JSON.
     pub fn current(&self) -> Value {
-        // A cloned snapshot keeps the critical section short (O(1) for a
-        // short-lived guard) and avoids handing callers a guard into shared
-        // mutable state.
+        // Return an owned snapshot so callers never hold a mutex guard.
+        // Cloning takes time proportional to the document's size.
         self.lock().clone()
     }
 
@@ -53,10 +52,8 @@ impl AppState {
     }
 }
 
-impl std::ops::Deref for AppState {
-    type Target = Arc<Mutex<Value>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.store
+impl Default for AppState {
+    fn default() -> Self {
+        Self::new()
     }
 }

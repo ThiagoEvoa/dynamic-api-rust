@@ -9,7 +9,7 @@
 //!
 //! [`dynamic_api_dart`]: https://github.com/ThiagoEvoa/dynamic_api_dart
 
-pub mod handlers;
+mod handlers;
 mod router;
 mod state;
 

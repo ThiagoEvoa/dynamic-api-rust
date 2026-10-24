@@ -30,15 +30,17 @@ async fn read_body(resp: Response) -> Vec<u8> {
 
 #[tokio::test]
 async fn get_returns_empty_json_by_default() {
-    let app = build_router().with_state(AppState::new());
-    let resp = app.oneshot(request("GET", "")).await.expect("oneshot");
+    for state in [AppState::new(), AppState::default()] {
+        let app = build_router().with_state(state);
+        let resp = app.oneshot(request("GET", "")).await.expect("oneshot");
 
-    assert_eq!(resp.status(), 200, "GET / should be 200");
-    assert_eq!(
-        read_body(resp).await,
-        b"{}",
-        "default document is an empty JSON object"
-    );
+        assert_eq!(resp.status(), 200, "GET / should be 200");
+        assert_eq!(
+            read_body(resp).await,
+            b"{}",
+            "both constructors should initialize an empty JSON object"
+        );
+    }
 }
 
 #[tokio::test]
