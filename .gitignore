@@ -8,5 +8,8 @@
 .vscode/
 .idea/
 
+# Agent / reviewer scratch (review notes, etc.) — see .dockerignore
+.agents/
+
 # Local env
 .env

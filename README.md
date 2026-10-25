@@ -12,7 +12,8 @@ A single in-memory, process-wide JSON document is exposed at `/`:
 | --- | --- |
 | `GET /` | Returns the current JSON document. Starts as an empty object `{}`. → `200` |
 | `POST /` | Parses the request body as JSON and **replaces** the stored document with it, then returns the new document. → `200` (or `400` on invalid JSON) |
-| any other method on `/` | `405 Method Not Allowed` (handled automatically by axum) |
+| `HEAD /`   | Mirrors `GET /` but returns an empty response body (axum's `get` maps both `GET` and `HEAD`). → `200` |
+| any other method on `/` | `405 Method Not Allowed` — e.g. `PUT`, `DELETE`, `PATCH`, `OPTIONS` (handled automatically by axum) |
 
 The stored document accepts any JSON value (object, array, string, …), matching
 the dynamic semantics of the original Dart `dynamic json = {}`.
@@ -40,7 +41,22 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
 
+These gates run automatically on every push and pull request via
+`.github/workflows/ci.yml` (a second job builds the Docker image).
+
 ## Docker
+
+The Dockerfile's base images are **digest-pinned** (e.g.
+`rust:1-slim-bookworm@sha256:…`); the `cloudflared` image in
+`docker-compose.yaml` is pinned the same way. Pinning by image *digest* rather
+than by a mutable `:latest`/`:1` tag means a build no longer picks up a new base
+whenever that tag is re-published, so it **improves reproducibility** — but it
+does not fully guarantee it: the packages the build later `apt-get install`s
+from Debian's mirrors can still change between builds even with a fixed base
+digest. When you upgrade a base or the tunnel, update the corresponding `ARG`
+default / `image:` line to the newly-pulled `…@sha256:…` digest. (A
+`.dockerignore` keeps the build context small and excludes `target/`, VCS, and
+editor/agent scratch.)
 
 ```bash
 docker build -t dynamic-api-rust .
@@ -64,7 +80,7 @@ TUNNEL_TOKEN=... docker compose up --build
 | `src/state.rs` | Shared `Arc<Mutex<serde_json::Value>>` store (`AppState`). |
 | `src/handlers.rs` | `GET`/`POST` handlers. |
 | `src/router.rs` | Route assembly. |
-| `src/main.rs` | Server bootstrap (runtime + listener). |
+| `src/main.rs` | Server bootstrap (runtime, listener, graceful shutdown on SIGINT/SIGTERM). |
 | `tests/api_test.rs` | Integration tests mirroring the Dart suite. |
 
 ## License

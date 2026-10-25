@@ -1,8 +1,10 @@
 //! HTTP handlers for the `/` route.
 //!
-//! `GET` reads the document; `POST` replaces it with the parsed body. Any other
-//! HTTP method on `/` is rejected with `405 Method Not Allowed` by axum itself
-//! (see [`crate::build_router`]); no explicit handling is required.
+//! `GET` (and `HEAD`, via axum's `get(...)`, with an empty body) reads the
+//! document; `POST` replaces it with the parsed body. Methods other than
+//! `GET`/`HEAD`/`POST` (e.g. `PUT`, `DELETE`, `PATCH`, `OPTIONS`) are rejected
+//! with `405 Method Not Allowed` by axum itself (see [`crate::build_router`]);
+//! no explicit handling is required.
 
 use crate::AppState;
 use axum::body::{Body, Bytes};

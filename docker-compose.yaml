@@ -11,7 +11,10 @@ services:
 
   tunnel:
     container_name: cloudflare-tunnel
-    image: cloudflare/cloudflared:latest
+    # Digest-pinned for reproducible deploys. Re-bump to the freshly-pulled
+    # `cloudflare/cloudflared@sha256:...` digest when you upgrade the tunnel;
+    # see .github/workflows for the update routine.
+    image: cloudflare/cloudflared@sha256:faa8e0a1475f137c910be6025f43c8e4092fdd35461b31e19fd1390657a1ff39
     restart: always
     # We add --no-autoupdate for stability on Raspberry Pi (matches the
     # dynamic_api_dart compose file).

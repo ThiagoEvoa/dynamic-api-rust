@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------
+# .dockerignore — keeps the build context small and free of files that must not
+# be baked into, or transferred for, the Docker build.
+# ---------------------------------------------------------------------------
+
+# Build output & caches are regenerated inside the image's build stage.
+/target
+
+# Version control & editor / agent scratch are never needed to build the binary.
+.git
+.gitignore
+.idea
+.vscode
+.agents
+
+# Local environment / secrets.
+.env
+*.local
+
+# Docker metadata.
+Dockerfile*
+.dockerignore
+
+# The binary is compiled FROM its own sources, so these are unnecessary.
+**/*.rs.bk
